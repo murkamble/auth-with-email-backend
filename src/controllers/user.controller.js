@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const sendMail = require('../utils/sendMail')
 
-const { CLIENT_URL } = process.env
+const { CLIENT_URL, ICON_IMAGE } = process.env
 
 const userController = {
     register: async (req, res) => {
@@ -18,41 +18,51 @@ const userController = {
             const newUser = { name, username, email, password: passwordHash }
             const activation_token = createActivationToken(newUser)
             const url = `${CLIENT_URL}/user/activate/${activation_token}`
-            const txt = 'Verify your email address'
+            const txt = 'Confirm verification your email address'
+            // const message = `
+            //     <div style=" color: #000; " >
+            //         <div style="max-width: 700px; margin:auto; padding: 40px 20px; font-size: 110%; text-align: center; ">
+            //         <div style=" text-align: center; ">
+            //         <img style="width: 64px; height: 64px;" src=${ICON_IMAGE} />
+            //         </div>
+            //         <hr/>
+            //         <h2 style="text-align: center; ">Welcome to ReachMe App.</h2>
+            //         <p>Congratulations! You're almost set to start using ReachMe Application.
+            //             Just click the button below to validate your email address.
+            //         </p>
+            //         <a href=${url} style="background: #2196f3; border-radius: 4px; text-decoration: none; color: rgb(255, 255, 255); padding: 10px 30px; display: inline-block;">${txt}</a>
+            //         <p>If the button doesn't work for any reason, you can also click on the link below:</p>
+            //         <div>${url}</div>
+            //         <p>Note: You must perform this validation within the next 24 hours to keep your new account enabled.</p>
+            //         <p>If you encounter any problem, please contact us at cse.mkamble@gmail.com .</p>
+            //         </div>
+            //     </div>
+            // `
             const message = `
-            <div style=" color: #000; " >
-        <div style="max-width: 700px; margin:auto; padding: 40px 20px; font-size: 110%; text-align: center; ">
-        <div style=" text-align: center; ">
-        <img style="width: 64px; height: 64px;" src="https://res.cloudinary.com/mayurkamble/image/upload/v1625303867/icon/media_pink_round_social_twitter_icon_192px_vhtntp.png" />
-    </div>
-    <hr/>
-        <h2 style="text-align: center; ">Welcome to ReachMe App.</h2>
-        <p>Congratulations! You're almost set to start using ReachMe Application.
-            Just click the button below to validate your email address.
-        </p>
-        
-        <a href=${url} style="background: #ec3e96; border-radius: 4px; text-decoration: none; color: white; padding: 10px 20px; margin: 10px 0; display: inline-block;">${txt}</a>
-
-        
-    
-        <p>If the button doesn't work for any reason, you can also click on the link below:</p>
-    
-        <div>${url}</div>
-
-        <p>Note: You must perform this validation within the next 24 hours to keep your new account enabled.</p>
-
-        <p>If you encounter any problem, please contact us at cse.mkamble@gmail.com .</p>
-
-        </div>
-        </div>
-        `
-
-            sendMail({
-                to: email,
-                subject: "Verify your email address",
-                text: message
-            })
-
+                <div style=" color: #000; " >
+                    <div style=" max-width: 600px; margin:auto; font-size: 110%; background: #eaeaea87; padding: 10px; ">
+                        <div style=" text-align: center; ">
+                            <img style=" width: 64px; height: 64px; margin: 10px 0 20px 0; " src=${ICON_IMAGE} />
+                        </div>
+                        <div style=" padding: 40px; background: #fff; border-radius: 10px; ">
+                            <h2 style="text-align: center; ">Welcome to ReachMe App.</h2>
+                            <p style="text-align: center; ">Congratulations! You're almost set to start using ReachMe Application.
+                                Just click the button below to validate your email address.
+                            </p>
+                            <div style=" text-align: center; ">
+                                <a href=${url} style="background: #2196f3; border-radius: 4px; text-decoration: none; color: rgb(255, 255, 255); padding: 10px 30px; display: inline-block;">Verify your email</a>
+                            </div>
+                            <p style=" color: rgb(165, 164, 164);" >If the button doesn't work for any reason, you can also click on the link below:</p>
+                            <div>${url}</div>
+                        </div>
+                    </div>
+                    <div style=" color: rgb(165, 164, 164); text-align: left; " >
+                        <p>Note: You must perform this validation within the next 24 hours to keep your new account enabled.</p>
+                        <p>If you encounter any problem, please contact us at cse.mkamble@gmail.com .</p>
+                    </div>
+                </div>
+            `
+            sendMail({ to: email, subject: txt, text: message })
             res.json({ msg: "Register Success! Please activate your email to start." })
         } catch (err) {
             return res.status(500).json({ msg: err.message })
@@ -67,6 +77,24 @@ const userController = {
             if (check) return res.status(400).json({ msg: "This email already exists." })
             const newUser = new Users({ name, username, email, password })
             await newUser.save()
+            const url = `${CLIENT_URL}/`
+            const txt = 'Verified email'
+            const message = `
+                <div style=" color: #000; " >
+                    <div style=" max-width: 600px; margin:auto; font-size: 110%; text-align: center; background: #eaeaea87; padding: 10px; ">
+                        <div style=" text-align: center; ">
+                            <img style=" width: 64px; height: 64px; margin: 10px 0 20px 0; " src=${ICON_IMAGE} />
+                        </div>
+                        <div style=" text-align: center; padding: 40px; background: #fff; border-radius: 10px; ">
+                            <img style=" width: 100px; height: 100px; margin: auto; " src="https://res.cloudinary.com/mayurkamble/image/upload/v1625314150/icon/green_check_mark_icon_flat_yzusy1.png" />
+                            <h2 style=" margin: 0; ">Thank you</h2>
+                            <p style=" color: rgb(165, 164, 164); margin: 5px; " >You have verified your email</p>
+                            <a href=${url} style="background: #2196f3; border-radius: 4px; text-decoration: none; color: rgb(255, 255, 255); padding: 10px 30px; display: inline-block;">CONTINUE</a>
+                        </div>
+                    </div>
+                </div>
+            `
+            sendMail({ to: email, subject: txt, text: message })
             res.json({ msg: "Account has been activated!" })
         } catch (err) {
             return res.status(500).json({ msg: err.message })
