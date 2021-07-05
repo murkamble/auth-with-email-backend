@@ -19,46 +19,29 @@ const userController = {
             const activation_token = createActivationToken(newUser)
             const url = `${CLIENT_URL}/user/activate/${activation_token}`
             const txt = 'Confirm verification your email address'
-            // const message = `
-            //     <div style=" color: #000; " >
-            //         <div style="max-width: 700px; margin:auto; padding: 40px 20px; font-size: 110%; text-align: center; ">
-            //         <div style=" text-align: center; ">
-            //         <img style="width: 64px; height: 64px;" src=${ICON_IMAGE} />
-            //         </div>
-            //         <hr/>
-            //         <h2 style="text-align: center; ">Welcome to ReachMe App.</h2>
-            //         <p>Congratulations! You're almost set to start using ReachMe Application.
-            //             Just click the button below to validate your email address.
-            //         </p>
-            //         <a href=${url} style="background: #2196f3; border-radius: 4px; text-decoration: none; color: rgb(255, 255, 255); padding: 10px 30px; display: inline-block;">${txt}</a>
-            //         <p>If the button doesn't work for any reason, you can also click on the link below:</p>
-            //         <div>${url}</div>
-            //         <p>Note: You must perform this validation within the next 24 hours to keep your new account enabled.</p>
-            //         <p>If you encounter any problem, please contact us at cse.mkamble@gmail.com .</p>
-            //         </div>
-            //     </div>
-            // `
+            const emaillMessageButtonName = 'Verify your email'
             const message = `
-                <div style=" color: #000; " >
+                <div style=" color: #323232; " >
                     <div style=" max-width: 600px; margin:auto; font-size: 110%; background: #eaeaea87; padding: 10px; ">
                         <div style=" text-align: center; ">
                             <img style=" width: 64px; height: 64px; margin: 10px 0 20px 0; " src=${ICON_IMAGE} />
                         </div>
                         <div style=" padding: 40px; background: #fff; border-radius: 10px; ">
-                            <h2 style="text-align: center; ">Welcome to ReachMe App.</h2>
-                            <p style="text-align: center; ">Congratulations! You're almost set to start using ReachMe Application.
+                            <h2 style="text-align: center; ">Welcome to ReachMe.</h2>
+                            <p>Congratulations! You're almost set to start using ReachMe Application.
                                 Just click the button below to validate your email address.
                             </p>
                             <div style=" text-align: center; ">
-                                <a href=${url} style="background: #2196f3; border-radius: 4px; text-decoration: none; color: rgb(255, 255, 255); padding: 10px 30px; display: inline-block;">Verify your email</a>
+                                <a href=${url} style="background: #2196f3; border-radius: 4px; text-decoration: none; color: rgb(255, 255, 255); padding: 10px 30px; display: inline-block;">${emaillMessageButtonName}</a>
                             </div>
-                            <p style=" color: rgb(165, 164, 164);" >If the button doesn't work for any reason, you can also click on the link below:</p>
+                            <p>If the button doesn't work for any reason, you can also click on the link below:</p>
                             <div>${url}</div>
+                            <p>Note: You must perform this validation within the next 24 hours to keep your new account enabled.</p>
                         </div>
-                    </div>
-                    <div style=" color: rgb(165, 164, 164); text-align: left; " >
-                        <p>Note: You must perform this validation within the next 24 hours to keep your new account enabled.</p>
-                        <p>If you encounter any problem, please contact us at cse.mkamble@gmail.com .</p>
+                        <div style=" color: rgb(165, 164, 164); text-align: left; margin: 20px auto; " >
+                            <p style=" font-size: 12px; margin: 10px 20px; " >ReachMe is the social media platform for rapid scaling of multi-platform applications.</p>
+                            <p style=" font-size: 12px; margin: 10px 20px; " >If you encounter any problem, please contact us at cse.mkamble@gmail.com .</p>
+                        </div>
                     </div>
                 </div>
             `
@@ -79,8 +62,9 @@ const userController = {
             await newUser.save()
             const url = `${CLIENT_URL}/`
             const txt = 'Verified email'
+            const emaillMessageButtonName = 'CONTINUE'
             const message = `
-                <div style=" color: #000; " >
+                <div style=" color: #323232; " >
                     <div style=" max-width: 600px; margin:auto; font-size: 110%; text-align: center; background: #eaeaea87; padding: 10px; ">
                         <div style=" text-align: center; ">
                             <img style=" width: 64px; height: 64px; margin: 10px 0 20px 0; " src=${ICON_IMAGE} />
@@ -89,7 +73,7 @@ const userController = {
                             <img style=" width: 100px; height: 100px; margin: auto; " src="https://res.cloudinary.com/mayurkamble/image/upload/v1625314150/icon/green_check_mark_icon_flat_yzusy1.png" />
                             <h2 style=" margin: 0; ">Thank you</h2>
                             <p style=" color: rgb(165, 164, 164); margin: 5px; " >You have verified your email</p>
-                            <a href=${url} style="background: #2196f3; border-radius: 4px; text-decoration: none; color: rgb(255, 255, 255); padding: 10px 30px; display: inline-block;">CONTINUE</a>
+                            <a href=${url} style="background: #2196f3; border-radius: 4px; text-decoration: none; color: rgb(255, 255, 255); padding: 10px 30px; display: inline-block;">${emaillMessageButtonName}</a>
                         </div>
                     </div>
                 </div>
@@ -105,17 +89,14 @@ const userController = {
             const { email, password } = req.body
             const user = await Users.findOne({ email })
             if (!user) return res.status(400).json({ msg: "This email does not exist." })
-
             const isMatch = await bcrypt.compare(password, user.password)
             if (!isMatch) return res.status(400).json({ msg: "Password is incorrect." })
-
             const refresh_token = createRefreshToken({ id: user._id })
             res.cookie('refreshtoken', refresh_token, {
                 httpOnly: true,
                 path: '/user/refresh_token',
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
             })
-
             res.json({ msg: "Login success!" })
         } catch (err) {
             return res.status(500).json({ msg: err.message })
@@ -125,10 +106,8 @@ const userController = {
         try {
             const rf_token = req.cookies.refreshtoken
             if (!rf_token) return res.status(400).json({ msg: "Please login now!" })
-
             jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
                 if (err) return res.status(400).json({ msg: "Please login now!" })
-
                 const access_token = createAccessToken({ id: user.id })
                 res.json({ access_token })
             })
@@ -141,11 +120,39 @@ const userController = {
             const { email } = req.body
             const user = await Users.findOne({ email })
             if (!user) return res.status(400).json({ msg: "This email does not exist." })
-
-            const access_token = createAccessToken({ id: user._id })
+            const access_token = createAccessToken({ id: user._id, email })
             const url = `${CLIENT_URL}/user/reset/${access_token}`
-
-            sendMail(email, url, "Reset your password")
+            // sendMail(email, url, "Reset your password")
+            const txt = 'Reset your password'
+            const emaillMessageButtonName = 'Reset your password'
+            const message = `
+                <div style=" color: #323232; " >
+                    <div style=" max-width: 600px; margin:auto; font-size: 110%; background: #eaeaea87; padding: 10px; ">
+                        <div style=" text-align: center; ">
+                            <img style=" width: 64px; height: 64px; margin: 10px 0 20px 0; " src=${ICON_IMAGE} />
+                        </div>
+                        <div style=" padding: 40px; background: #fff; border-radius: 10px; ">
+                            <h2 style="text-align: center; ">Reset your password</h2>
+                            <p>Someone (hopefully you) has requested a password reset for your ReachMe account.
+                                Just click the button below to set a new password:
+                            </p>
+                            <div style=" text-align: center; ">
+                                <a href=${url} style="background: #2196f3; border-radius: 4px; text-decoration: none; color: rgb(255, 255, 255); padding: 10px 30px; display: inline-block;">${emaillMessageButtonName}</a>
+                            </div>
+                            <p>If the button doesn't work for any reason, you can also click on the link below:</p>
+                            <div>${url}</div>
+                            <p>If you don't wish to reset your password, disregard this email and no action will be taken.</p>
+                            <p style=" margin: 30px auto 4px auto; " >The ReachMe Team</p>
+                            <div>${CLIENT_URL}</div>
+                        </div>
+                        <div style=" color: rgb(165, 164, 164); text-align: left; margin: 20px auto; " >
+                            <p style=" font-size: 12px; margin: 10px 20px; " >ReachMe is the social media platform for rapid scaling of multi-platform applications.</p>
+                            <p style=" font-size: 12px; margin: 10px 20px; " >If you encounter any problem, please contact us at cse.mkamble@gmail.com .</p>
+                        </div>
+                    </div>
+                </div>
+            `
+            sendMail({ to: email, subject: txt, text: message })
             res.json({ msg: "Re-send the password, please check your email." })
         } catch (err) {
             return res.status(500).json({ msg: err.message })
@@ -154,12 +161,32 @@ const userController = {
     resetPassword: async (req, res) => {
         try {
             const { password } = req.body
-            console.log(password)
+            // console.log(req.user)
             const passwordHash = await bcrypt.hash(password, 12)
 
             await Users.findOneAndUpdate({ _id: req.user.id }, {
                 password: passwordHash
             })
+            
+            const url = `${CLIENT_URL}/`
+            const txt = 'Password successfully changed'
+            const emaillMessageButtonName = 'CONTINUE'
+            const message = `
+                <div style=" color: #323232; " >
+                    <div style=" max-width: 600px; margin:auto; font-size: 110%; text-align: center; background: #eaeaea87; padding: 10px; ">
+                        <div style=" text-align: center; ">
+                            <img style=" width: 64px; height: 64px; margin: 10px 0 20px 0; " src=${ICON_IMAGE} />
+                        </div>
+                        <div style=" text-align: center; padding: 40px; background: #fff; border-radius: 10px; ">
+                            <img style=" width: 100px; height: 100px; margin: auto; " src="https://res.cloudinary.com/mayurkamble/image/upload/v1625314150/icon/green_check_mark_icon_flat_yzusy1.png" />
+                            <h2 style=" margin: 0; ">Password Successfully Changed</h2>
+                            <p style=" color: rgb(165, 164, 164); margin: 5px; " >You have successfully changed your password</p>
+                            <a href=${url} style="background: #2196f3; border-radius: 4px; text-decoration: none; color: rgb(255, 255, 255); padding: 10px 30px; display: inline-block;">${emaillMessageButtonName}</a>
+                        </div>
+                    </div>
+                </div>
+            `
+            sendMail({ to: req.user.email, subject: txt, text: message })
 
             res.json({ msg: "Password successfully changed!" })
         } catch (err) {
